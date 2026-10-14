@@ -115,13 +115,17 @@ All financial data is secured via **JSON Web Tokens (JWT)** and **bcrypt.js pass
 Expense Tracker/
 ├── .env.example                     # Frontend environment template
 ├── .gitignore                       # Git ignore configuration
+├── vercel.json                      # Vercel serverless routing & SPA fallback configuration
 ├── index.html                       # HTML entry point
-├── package.json                     # Frontend scripts & dependencies
+├── package.json                     # Unified scripts & full-stack dependencies
 ├── tailwind.config.js               # Tailwind CSS theme configuration
 ├── vite.config.js                   # Vite configuration
+├── api/
+│   └── index.js                     # Vercel serverless function entry (connects to Express & MongoDB)
 ├── server/                          # Backend Express Application
 │   ├── config/
 │   │   └── db.js                    # MongoDB connection module (Atlas/Local/In-Memory)
+│   ├── app.js                       # Express application configuration, routes, and middleware
 │   ├── controllers/
 │   │   ├── authController.js        # Registration, login, profile logic
 │   │   ├── transactionController.js # Transaction CRUD, search, and filtering
@@ -144,7 +148,7 @@ Expense Tracker/
 │   │   └── jwt.js                   # JWT signing helper
 │   ├── .env.example                 # Backend environment template
 │   ├── package.json                 # Backend dependencies & scripts
-│   ├── server.js                    # Express app entry & database bootstrap
+│   ├── server.js                    # Local standalone server entry & HTTP bootstrap
 │   └── test-api.js                  # Automated 14-point API verification test suite
 └── src/                             # Frontend React Application
     ├── components/
@@ -255,6 +259,91 @@ An automated end-to-end test suite is included in `server/test-api.js` to verify
 ```bash
 npm.cmd run test:api
 ```
+
+---
+
+## 🚀 How to Deploy on Vercel (Frontend + Backend Unified)
+
+This application is architected to deploy **both the React frontend and Express backend together under a single Vercel project**.
+- **Frontend**: Automatically compiled by Vite into optimized static production assets.
+- **Backend API**: Runs as a Vercel Serverless Function (`/api/*`) via `api/index.js`.
+- **Zero CORS Configuration**: Both client and server share the same domain (`https://your-app.vercel.app`), eliminating cross-origin issues completely.
+
+### Step 1: Set Up MongoDB Atlas (Free Cloud Database)
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and sign in or create a free account.
+2. Create a new free cluster (Shared **M0** tier, free forever).
+3. Under **Security > Database Access**:
+   - Create a database user with username and password (e.g., `appuser` and a strong password).
+4. Under **Security > Network Access**:
+   - Click **Add IP Address** and select **Allow Access from Anywhere** (`0.0.0.0/0`). This allows Vercel's serverless functions to connect.
+5. Under **Database > Deployment > Connect**:
+   - Choose **Drivers** (Node.js).
+   - Copy the connection string:
+     ```text
+     mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/expense_tracker?retryWrites=true&w=majority
+     ```
+   - Replace `<username>` and `<password>` with your database user credentials.
+
+---
+
+### Step 2: Deploy to Vercel
+
+#### Method A: Via GitHub Integration (Recommended)
+1. Push your latest code to your GitHub repository:
+   ```bash
+   git add -A
+   git commit -m "feat: configure unified Vercel deployment"
+   git push origin main
+   ```
+2. Open your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New..." > "Project"**.
+3. Import your **Expense Tracker** GitHub repository.
+4. Keep the default settings:
+   - **Framework Preset**: `Vite` (detected automatically)
+   - **Root Directory**: `./` (default)
+   - **Build Command**: `npm run build` (or `vite build`)
+   - **Output Directory**: `dist`
+5. Open the **Environment Variables** panel and add:
+   - `MONGO_URI`: Your MongoDB Atlas connection string from Step 1.
+   - `JWT_SECRET`: A secure random string (e.g. `your_super_secret_production_jwt_key_2026`).
+   - `NODE_ENV`: `production`
+6. Click **Deploy**.
+
+---
+
+#### Method B: Via Vercel CLI
+If you prefer deploying directly from your terminal:
+1. Install the Vercel CLI:
+   ```bash
+   npm.cmd install -g vercel
+   ```
+2. Log in and initialize deployment:
+   ```bash
+   vercel
+   ```
+3. Set your production environment variables:
+   ```bash
+   vercel env add MONGO_URI production
+   vercel env add JWT_SECRET production
+   vercel env add NODE_ENV production
+   ```
+4. Deploy to production:
+   ```bash
+   vercel --prod
+   ```
+
+---
+
+### Step 3: Verify Your Deployment
+Once the deployment finishes (usually in 15–30 seconds):
+1. **API Health Check**: Visit `https://your-app.vercel.app/api/health` — it should return:
+   ```json
+   {
+     "status": "ok",
+     "service": "Expense & Budget Tracker API",
+     "environment": "production"
+   }
+   ```
+2. **Full-Stack Experience**: Visit `https://your-app.vercel.app` to register an account, log in, create transactions, configure monthly budgets, and customize regional currency settings.
 
 ---
 

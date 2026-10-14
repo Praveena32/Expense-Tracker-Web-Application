@@ -7,11 +7,16 @@ import mongoose from 'mongoose';
  * so the application is completely functional without manual database installation.
  */
 export const connectDB = async () => {
+  // Reuse existing connection if active (crucial for serverless environments like Vercel)
+  if (mongoose.connection && mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
+
   const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/expense_tracker';
 
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2500, // Quick timeout for local fallback check
+      serverSelectionTimeoutMS: process.env.NODE_ENV === 'production' ? 10000 : 2500,
     });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
