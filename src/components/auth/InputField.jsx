@@ -59,8 +59,8 @@ export default function InputField({
           autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
           aria-describedby={describedBy}
-          className={`peer w-full h-11.5 py-2.5 bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-xl border transition-all duration-150 outline-none
-            ${Icon ? 'pl-10.5' : 'pl-3.5'}
+          className={`peer w-full h-11 py-2.5 bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-xl border transition-all duration-150 outline-none
+            ${Icon ? 'pl-11' : 'pl-3.5'}
             ${error ? 'pr-10' : 'pr-3.5'}
             ${
               error

@@ -399,6 +399,10 @@ export default function Dashboard() {
                   <option>Entertainment</option>
                   <option>Health</option>
                   <option>Education</option>
+                  <option>Emergency</option>
+                  <option>Savings (Deposit)</option>
+                  <option>Loan Settlements</option>
+                  <option>Other</option>
                 </select>
               </div>
             </div>
@@ -523,6 +527,10 @@ export default function Dashboard() {
                 <option>Bills</option>
                 <option>Health</option>
                 <option>Education</option>
+                <option>Emergency</option>
+                <option>Savings (Deposit)</option>
+                <option>Loan Settlements</option>
+                <option>Other</option>
               </select>
             </div>
             <div>

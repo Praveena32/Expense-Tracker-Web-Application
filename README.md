@@ -49,10 +49,23 @@ All financial data is secured via **JSON Web Tokens (JWT)** and **bcrypt.js pass
 - **CSV Export**: Export filtered transaction logs directly to `.csv` format.
 
 ### 4. Monthly Budget Management (`/budgets`)
-- **Category Budgets**: Set spending limits per category for any month and year.
+- **Category Budgets**: Set spending limits per category for any month and year (including `Housing`, `Food & Dining`, `Transportation`, `Utilities`, `Entertainment`, `Healthcare`, `Shopping`, `Personal Care`, `Education`, `Emergency`, `Savings (Deposit)`, `Loan Settlements`, and `Other`).
 - **Dynamic Spend Calculation**: Real-time spending aggregated directly from actual database expense records.
 - **Remaining Balance & Over-Budget Alerts**: Automatic calculation of remaining allowances and exceeded margins.
 - **Month / Year Switcher**: Review past performance and plan ahead for upcoming months.
+
+### 5. User Account & Profile (`/account`, `/profile`)
+- **Financial Profile Overview**: Summary of account tenure, total active budgets, and net lifetime balance.
+- **Personal Details Management**: View and update full name, email address, phone, and role.
+- **Security & Password Management**: Self-service password change with confirmation verification.
+- **Consistent User Context**: User information, avatar, and dynamic greetings are rendered consistently across Dashboard, Transactions, Budgets, Account, and Settings.
+
+### 6. Settings & Preferences (`/settings`)
+- **Currency & Localization**: Switch default currency symbols and decimal formats (INR ₹, USD $, EUR €, GBP £).
+- **Date Formatting**: Select between customizable date display standards (`YYYY-MM-DD`, `DD/MM/YYYY`, `MM/DD/YYYY`).
+- **Budget Notification Thresholds**: Adjust the over-budget alert warning trigger (from 50% to 95%).
+- **Email & Push Notification Toggles**: Manage automated digest and low-balance warning alerts.
+- **Account Data Export & Danger Zone**: Download personal finance snapshots or purge stored account records.
 
 ---
 
@@ -129,6 +142,8 @@ Expense Tracker/
     │   ├── Dashboard.jsx            # Live dashboard with cards, charts, and quick actions
     │   ├── Transactions.jsx         # Transactions management with search, filter, CSV
     │   ├── Budgets.jsx              # Category budgeting with monthly progress meters
+    │   ├── Account.jsx              # User account, profile stats, and security management
+    │   ├── Settings.jsx             # System preferences, currencies, notifications & data export
     │   ├── Login.jsx                # Login page with real authentication & feedback
     │   └── Register.jsx             # Register page with strength validation
     ├── services/

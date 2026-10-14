@@ -6,10 +6,11 @@ import {
   LayoutDashboard, 
   ReceiptText, 
   PieChart, 
+  User,
   Settings, 
   LogOut, 
   ChevronLeft, 
-  ChevronRight,
+  ChevronRight, 
   X 
 } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export default function Sidebar({
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Transactions', path: '/transactions', icon: ReceiptText },
     { label: 'Budgets', path: '/budgets', icon: PieChart },
+    { label: 'User Account', path: '/account', icon: User },
   ];
 
   const handleLogout = () => {
@@ -134,7 +136,10 @@ export default function Sidebar({
 
         <button
           type="button"
-          onClick={() => alert('Settings placeholder modal')}
+          onClick={() => {
+            setMobileOpen(false);
+            navigate('/settings');
+          }}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-display font-semibold text-sm text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 transition-colors group ${
             collapsed && !mobileOpen ? 'justify-center px-2' : ''
           }`}

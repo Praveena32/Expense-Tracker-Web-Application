@@ -10,10 +10,16 @@ const CATEGORY_COLORS = {
   Entertainment: '#EC4899',
   Health: '#06B6D4',
   Education: '#6366F1',
+  'Emergency Fund': '#EF4444',
+  'Emergency': '#EF4444',
+  'Savings (Deposit)': '#14B8A6',
+  'Save (Deposit)': '#14B8A6',
+  'Loan Settlements': '#F97316',
   Salary: '#10B981',
   Freelance: '#3B82F6',
   Investments: '#8B5CF6',
   Bonus: '#F59E0B',
+  Other: '#64748B',
 };
 
 const DEFAULT_COLOR = '#64748B';

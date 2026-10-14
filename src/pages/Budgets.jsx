@@ -27,6 +27,9 @@ const BUDGET_CATEGORIES = [
   'Entertainment',
   'Health',
   'Education',
+  'Emergency',
+  'Savings (Deposit)',
+  'Loan Settlements',
   'Other',
 ];
 

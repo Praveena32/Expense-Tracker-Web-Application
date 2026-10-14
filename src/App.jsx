@@ -5,6 +5,8 @@ import { ProtectedRoute, PublicRoute } from './components/common/ProtectedRoute'
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Budgets from './pages/Budgets';
+import Account from './pages/Account';
+import Settings from './pages/Settings';
 import Register from './pages/Register';
 import Login from './pages/Login';
 
@@ -35,6 +37,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Budgets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             }
           />

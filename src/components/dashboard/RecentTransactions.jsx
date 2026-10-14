@@ -11,7 +11,10 @@ import {
   Receipt,
   Tag,
   ArrowRight,
-  ReceiptText
+  ReceiptText,
+  ShieldAlert,
+  PiggyBank,
+  CreditCard
 } from 'lucide-react';
 import EmptyState from '../common/EmptyState';
 
@@ -36,6 +39,14 @@ const getCategoryIcon = (iconName, category) => {
     case 'Receipt':
     case 'Bills':
       return Receipt;
+    case 'Emergency':
+    case 'Emergency Fund':
+      return ShieldAlert;
+    case 'Savings (Deposit)':
+    case 'Save (Deposit)':
+      return PiggyBank;
+    case 'Loan Settlements':
+      return CreditCard;
     default:
       return Tag;
   }

@@ -58,8 +58,8 @@ export default function PasswordInput({
           autoComplete={autoComplete}
           aria-invalid={Boolean(error)}
           aria-describedby={describedBy}
-          className={`peer w-full h-11.5 py-2.5 bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-xl border transition-all duration-150 outline-none pl-10.5 ${
-            error ? 'pr-18' : 'pr-11'
+          className={`peer w-full h-11 py-2.5 bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-xl border transition-all duration-150 outline-none pl-11 ${
+            error ? 'pr-20' : 'pr-11'
           } ${
             error
               ? 'border-red-400 bg-red-50/20 text-slate-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/15'

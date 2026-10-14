@@ -12,13 +12,27 @@ import {
   ShieldCheck 
 } from 'lucide-react';
 
-export default function Topbar({ user, onMobileMenuClick }) {
+export default function Topbar({ user, title, subtitle, onMobileMenuClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user: authUser, logout } = useAuth();
+
+  const currentUser = user || authUser;
+  const now = new Date();
+  const hour = now.getHours();
+  let defaultGreeting = 'Good morning';
+  if (hour >= 12 && hour < 17) defaultGreeting = 'Good afternoon';
+  else if (hour >= 17) defaultGreeting = 'Good evening';
+
+  const greeting = currentUser?.greeting || defaultGreeting;
+  const userName = currentUser?.name || authUser?.name || 'User';
+  const userEmail = currentUser?.email || authUser?.email || 'user@expensetracker.io';
+  const userAvatar =
+    currentUser?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=10B981&color=fff&bold=true`;
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -52,14 +66,18 @@ export default function Topbar({ user, onMobileMenuClick }) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-display font-extrabold text-xl sm:text-2xl text-slate-900 tracking-tight leading-tight">
-                Dashboard
+                {title || 'Dashboard'}
               </h1>
               <span className="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                 Live Overview
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              {user?.greeting || 'Good morning'}, <span className="font-semibold text-slate-800">{user?.name || 'John'}</span> 👋 &mdash; Here's your financial overview.
+              {subtitle || (
+                <>
+                  {greeting}, <span className="font-semibold text-slate-800">{userName}</span> 👋 &mdash; Here's your financial overview.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -122,8 +140,8 @@ export default function Topbar({ user, onMobileMenuClick }) {
             >
               <div className="relative">
                 <img
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150'}
-                  alt={user?.name || 'User avatar'}
+                  src={userAvatar}
+                  alt={userName}
                   className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-emerald-500/30"
                 />
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
@@ -131,10 +149,10 @@ export default function Topbar({ user, onMobileMenuClick }) {
 
               <div className="hidden sm:flex flex-col text-left">
                 <span className="font-display font-bold text-xs sm:text-sm text-slate-900 leading-tight">
-                  {user?.name || 'John'}
+                  {userName}
                 </span>
                 <span className="text-[10px] text-emerald-700 font-semibold leading-tight">
-                  {user?.plan || 'Pro User'}
+                  {currentUser?.plan || 'Pro User'}
                 </span>
               </div>
 
@@ -145,13 +163,16 @@ export default function Topbar({ user, onMobileMenuClick }) {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
                 <div className="px-4 py-2 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-900">{user?.name || 'John'}</p>
-                  <p className="text-[11px] text-slate-500 truncate">{user?.email || 'john@expensetracker.io'}</p>
+                  <p className="text-xs font-bold text-slate-900">{userName}</p>
+                  <p className="text-[11px] text-slate-500 truncate">{userEmail}</p>
                 </div>
                 <div className="py-1">
                   <button
                     type="button"
-                    onClick={() => { setDropdownOpen(false); alert('Profile details modal'); }}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      navigate('/account');
+                    }}
                     className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5"
                   >
                     <User className="w-4 h-4 text-slate-400" />
@@ -159,7 +180,10 @@ export default function Topbar({ user, onMobileMenuClick }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setDropdownOpen(false); alert('Security & Account settings'); }}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      navigate('/settings');
+                    }}
                     className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2.5"
                   >
                     <Settings className="w-4 h-4 text-slate-400" />
