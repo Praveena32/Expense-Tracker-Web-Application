@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Sparkles, 
@@ -25,11 +25,18 @@ import {
   BudgetSkeleton 
 } from '../components/common/Skeleton';
 import { mockDashboardData, emptyDashboardData } from '../data/dashboardData';
+import dashboardService from '../services/dashboardService';
+import transactionService from '../services/transactionService';
+import budgetService from '../services/budgetService';
 
 export default function Dashboard() {
   // Navigation & Layout State
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Live Backend Data & Loading State
+  const [dashboardData, setDashboardData] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // UI Inspection & Simulation Mode: 'normal' | 'empty' | 'loading'
   const [viewState, setViewState] = useState('normal');
@@ -37,19 +44,105 @@ export default function Dashboard() {
   // Quick Action Modals State
   const [activeModal, setActiveModal] = useState(null); // 'expense' | 'income' | 'budget' | null
   const [modalFeedback, setModalFeedback] = useState('');
+  const [modalSubmitting, setModalSubmitting] = useState(false);
+
+  // Modal Form States
+  const [expenseForm, setExpenseForm] = useState({ description: '', amount: '', category: 'Food' });
+  const [incomeForm, setIncomeForm] = useState({ description: '', amount: '', category: 'Salary' });
+  const [budgetForm, setBudgetForm] = useState({ category: 'Food', amount: '' });
+
+  // Fetch real data from backend API
+  const loadDashboardData = async () => {
+    try {
+      const data = await dashboardService.getDashboardData();
+      if (data) {
+        setDashboardData(data);
+      }
+    } catch (err) {
+      console.warn('Dashboard API call error, falling back to mock view:', err.message);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
   // Choose data according to view state
-  const currentData = viewState === 'empty' ? emptyDashboardData : mockDashboardData;
-  const isLoading = viewState === 'loading';
+  const activeData = dashboardData || mockDashboardData;
+  const currentData = viewState === 'empty' ? emptyDashboardData : activeData;
+  const isLoading = viewState === 'loading' || (initialLoading && !dashboardData);
 
-  // Modal Submit Handlers
-  const handleModalSubmit = (e, type) => {
+  // Modal Submit Handlers calling real backend APIs
+  const handleExpenseSubmit = async (e) => {
     e.preventDefault();
-    setModalFeedback(`${type} recorded successfully (Mock action)`);
-    setTimeout(() => {
-      setModalFeedback('');
-      setActiveModal(null);
-    }, 1200);
+    setModalSubmitting(true);
+    try {
+      await transactionService.createTransaction({
+        type: 'expense',
+        description: expenseForm.description.trim(),
+        amount: Number(expenseForm.amount),
+        category: expenseForm.category,
+      });
+      setModalFeedback('Expense recorded successfully!');
+      setExpenseForm({ description: '', amount: '', category: 'Food' });
+      await loadDashboardData();
+      setTimeout(() => {
+        setModalFeedback('');
+        setActiveModal(null);
+      }, 1000);
+    } catch (err) {
+      setModalFeedback(`Error: ${err.message}`);
+    } finally {
+      setModalSubmitting(false);
+    }
+  };
+
+  const handleIncomeSubmit = async (e) => {
+    e.preventDefault();
+    setModalSubmitting(true);
+    try {
+      await transactionService.createTransaction({
+        type: 'income',
+        description: incomeForm.description.trim(),
+        amount: Number(incomeForm.amount),
+        category: incomeForm.category,
+      });
+      setModalFeedback('Income recorded successfully!');
+      setIncomeForm({ description: '', amount: '', category: 'Salary' });
+      await loadDashboardData();
+      setTimeout(() => {
+        setModalFeedback('');
+        setActiveModal(null);
+      }, 1000);
+    } catch (err) {
+      setModalFeedback(`Error: ${err.message}`);
+    } finally {
+      setModalSubmitting(false);
+    }
+  };
+
+  const handleBudgetSubmit = async (e) => {
+    e.preventDefault();
+    setModalSubmitting(true);
+    try {
+      await budgetService.createBudget({
+        category: budgetForm.category,
+        amount: Number(budgetForm.amount),
+      });
+      setModalFeedback('Monthly budget saved successfully!');
+      setBudgetForm({ category: 'Food', amount: '' });
+      await loadDashboardData();
+      setTimeout(() => {
+        setModalFeedback('');
+        setActiveModal(null);
+      }, 1000);
+    } catch (err) {
+      setModalFeedback(`Error: ${err.message}`);
+    } finally {
+      setModalSubmitting(false);
+    }
   };
 
   return (
@@ -251,12 +344,12 @@ export default function Dashboard() {
       </div>
 
       {/* ====================================================================
-          QUICK ACTION MODALS (Interactive UI Placeholders)
+          QUICK ACTION MODALS (Real API-Connected Forms)
          ==================================================================== */}
       {/* 1. Add Expense Modal */}
       <ActionModal
         isOpen={activeModal === 'expense'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setModalFeedback(''); }}
         title="Add New Expense"
         subtitle="Record an expenditure against your category limits"
       >
@@ -266,13 +359,15 @@ export default function Dashboard() {
             <span>{modalFeedback}</span>
           </div>
         ) : (
-          <form onSubmit={(e) => handleModalSubmit(e, 'Expense')} className="space-y-4">
+          <form onSubmit={handleExpenseSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
               <input
                 type="text"
                 placeholder="e.g. Grocery store, Uber ride"
                 required
+                value={expenseForm.description}
+                onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -283,33 +378,44 @@ export default function Dashboard() {
                   type="number"
                   placeholder="2500"
                   required
+                  min="0.01"
+                  step="any"
+                  value={expenseForm.amount}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
                   className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
-                <select className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <select
+                  value={expenseForm.category}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
                   <option>Food</option>
                   <option>Transport</option>
                   <option>Shopping</option>
                   <option>Bills</option>
                   <option>Entertainment</option>
+                  <option>Health</option>
+                  <option>Education</option>
                 </select>
               </div>
             </div>
             <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={() => { setActiveModal(null); setModalFeedback(''); }}
                 className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
+                disabled={modalSubmitting}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition-colors"
               >
-                Record Expense
+                {modalSubmitting ? 'Recording...' : 'Record Expense'}
               </button>
             </div>
           </form>
@@ -319,7 +425,7 @@ export default function Dashboard() {
       {/* 2. Add Income Modal */}
       <ActionModal
         isOpen={activeModal === 'income'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setModalFeedback(''); }}
         title="Add New Income"
         subtitle="Log income stream, salary deposit, or dividend"
       >
@@ -329,13 +435,15 @@ export default function Dashboard() {
             <span>{modalFeedback}</span>
           </div>
         ) : (
-          <form onSubmit={(e) => handleModalSubmit(e, 'Income')} className="space-y-4">
+          <form onSubmit={handleIncomeSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Source / Description</label>
               <input
                 type="text"
                 placeholder="e.g. Monthly Salary, Freelance retainer"
                 required
+                value={incomeForm.description}
+                onChange={(e) => setIncomeForm({ ...incomeForm, description: e.target.value })}
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -346,12 +454,20 @@ export default function Dashboard() {
                   type="number"
                   placeholder="50000"
                   required
+                  min="0.01"
+                  step="any"
+                  value={incomeForm.amount}
+                  onChange={(e) => setIncomeForm({ ...incomeForm, amount: e.target.value })}
                   className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
-                <select className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <select
+                  value={incomeForm.category}
+                  onChange={(e) => setIncomeForm({ ...incomeForm, category: e.target.value })}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
                   <option>Salary</option>
                   <option>Freelance</option>
                   <option>Investments</option>
@@ -362,16 +478,17 @@ export default function Dashboard() {
             <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={() => { setActiveModal(null); setModalFeedback(''); }}
                 className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs"
+                disabled={modalSubmitting}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition-colors"
               >
-                Record Income
+                {modalSubmitting ? 'Recording...' : 'Record Income'}
               </button>
             </div>
           </form>
@@ -381,7 +498,7 @@ export default function Dashboard() {
       {/* 3. Set Budget Modal */}
       <ActionModal
         isOpen={activeModal === 'budget'}
-        onClose={() => setActiveModal(null)}
+        onClose={() => { setActiveModal(null); setModalFeedback(''); }}
         title="Set Budget Limit"
         subtitle="Establish monthly expenditure cap per category"
       >
@@ -391,15 +508,21 @@ export default function Dashboard() {
             <span>{modalFeedback}</span>
           </div>
         ) : (
-          <form onSubmit={(e) => handleModalSubmit(e, 'Budget')} className="space-y-4">
+          <form onSubmit={handleBudgetSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
-              <select className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option>Food & Dining</option>
-                <option>Transport & Fuel</option>
+              <select
+                value={budgetForm.category}
+                onChange={(e) => setBudgetForm({ ...budgetForm, category: e.target.value })}
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option>Food</option>
+                <option>Transport</option>
                 <option>Entertainment</option>
-                <option>Shopping & Lifestyle</option>
-                <option>Health & Wellness</option>
+                <option>Shopping</option>
+                <option>Bills</option>
+                <option>Health</option>
+                <option>Education</option>
               </select>
             </div>
             <div>
@@ -408,22 +531,27 @@ export default function Dashboard() {
                 type="number"
                 placeholder="15000"
                 required
+                min="1"
+                step="any"
+                value={budgetForm.amount}
+                onChange={(e) => setBudgetForm({ ...budgetForm, amount: e.target.value })}
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={() => { setActiveModal(null); setModalFeedback(''); }}
                 className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs"
+                disabled={modalSubmitting}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition-colors"
               >
-                Save Budget
+                {modalSubmitting ? 'Saving...' : 'Save Budget'}
               </button>
             </div>
           </form>
