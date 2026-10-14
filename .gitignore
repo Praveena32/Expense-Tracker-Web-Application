@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # Dependency directories
 node_modules/
+server/node_modules/
 dist/
 dist-ssr/
 *.local
@@ -28,4 +29,8 @@ dist-ssr/
 # Environment variables
 .env
 .env.*
+server/.env
+server/.env.*
 !.env.example
+!server/.env.example
+
