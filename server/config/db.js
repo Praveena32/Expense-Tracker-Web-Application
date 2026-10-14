@@ -12,16 +12,23 @@ export const connectDB = async () => {
     return mongoose.connection;
   }
 
-  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/expense_tracker';
+  const isCloudDeployment = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+  const uri = process.env.MONGO_URI;
+
+  if (!uri && isCloudDeployment) {
+    throw new Error('MONGO_URI environment variable is not defined in Vercel Project Settings.');
+  }
+
+  const targetUri = uri || 'mongodb://localhost:27017/expense_tracker';
 
   try {
-    const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: process.env.NODE_ENV === 'production' ? 10000 : 2500,
+    const conn = await mongoose.connect(targetUri, {
+      serverSelectionTimeoutMS: isCloudDeployment ? 10000 : 2500,
     });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (!isCloudDeployment) {
       console.warn(`[Database] Could not connect to primary MONGO_URI (${err.message}). Starting in-memory MongoDB for local development...`);
       try {
         const { MongoMemoryServer } = await import('mongodb-memory-server');

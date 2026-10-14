@@ -12,8 +12,8 @@ export default async function handler(req, res) {
       console.error('[Vercel Serverless] Database connection error:', err);
       return res.status(500).json({
         success: false,
-        message: 'Database connection failed. Please ensure MONGO_URI is configured in your Vercel Project Environment Variables.',
-        error: process.env.NODE_ENV === 'production' ? undefined : err.message,
+        message: `Database connection failed: ${err.message || 'Please check MONGO_URI in Vercel'}`,
+        error: err.message,
       });
     }
   }
