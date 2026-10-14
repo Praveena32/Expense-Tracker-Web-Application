@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, UserPlus, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
+import { User, Mail, UserPlus, AlertTriangle, CheckCircle } from 'lucide-react';
 import AuthLayout from '../layouts/AuthLayout';
 import InputField from '../components/auth/InputField';
 import PasswordInput from '../components/auth/PasswordInput';
@@ -122,112 +122,8 @@ export default function Register() {
     }
   };
 
-  // Demo State Trigger Helpers (for previewing all required UI states easily)
-  const triggerDemoValidationErrors = () => {
-    setServerError('');
-    setSuccessMessage('');
-    setErrors({
-      fullName: 'Full name cannot be empty',
-      email: 'Please provide a valid email format (e.g. alex@example.com)',
-      password: 'Password is too weak. Needs at least 8 characters with letters & digits',
-      confirmPassword: 'Passwords do not match. Please re-enter',
-      termsAccepted: 'You must agree to the Terms of Service to register',
-    });
-  };
-
-  const triggerExistingEmailError = () => {
-    setErrors({});
-    setSuccessMessage('');
-    setServerError('An account with this email address already exists. Please sign in instead.');
-  };
-
-  const triggerServerError = () => {
-    setErrors({});
-    setSuccessMessage('');
-    setServerError('Unable to connect to the authentication service. Please try again later (Error 500).');
-  };
-
-  const resetFormState = () => {
-    setErrors({});
-    setServerError('');
-    setSuccessMessage('');
-    setIsLoading(false);
-    setForceDisabled(false);
-    setFormData({
-      fullName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      termsAccepted: false,
-    });
-  };
-
   return (
     <AuthLayout tagline="Build better financial habits.">
-      
-      {/* Interactive UI State Sandbox Bar (for UI inspection) */}
-      <div className="mb-6 pb-4 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            UI Validation State Sandbox:
-          </span>
-          <button
-            type="button"
-            onClick={resetFormState}
-            className="text-[11px] font-medium text-slate-400 hover:text-slate-700 underline"
-          >
-            Reset
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          <button
-            type="button"
-            onClick={triggerDemoValidationErrors}
-            className="text-[11px] px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 font-medium transition-colors"
-          >
-            Field Errors
-          </button>
-          <button
-            type="button"
-            onClick={triggerExistingEmailError}
-            className="text-[11px] px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 font-medium transition-colors"
-          >
-            Email Exists
-          </button>
-          <button
-            type="button"
-            onClick={triggerServerError}
-            className="text-[11px] px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 font-medium transition-colors"
-          >
-            Server 500
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLoading((prev) => !prev)}
-            className={`text-[11px] px-2.5 py-1 rounded-md border font-medium transition-colors ${
-              isLoading
-                ? 'bg-emerald-600 text-white border-emerald-600'
-                : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-            }`}
-          >
-            {isLoading ? 'Loading: ON' : 'Toggle Loading'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setForceDisabled((prev) => !prev)}
-            className={`text-[11px] px-2.5 py-1 rounded-md border font-medium transition-colors ${
-              forceDisabled
-                ? 'bg-slate-800 text-white border-slate-800'
-                : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
-            }`}
-          >
-            {forceDisabled ? 'Disabled: ON' : 'Toggle Disabled'}
-          </button>
-        </div>
-      </div>
-
       {/* Form Heading & Subtitle */}
       <header className="mb-6">
         <h2 className="font-display text-2xl sm:text-[28px] font-extrabold text-slate-900 tracking-tight mb-2">

@@ -16,6 +16,100 @@ import Sidebar from '../components/dashboard/Sidebar';
 import Topbar from '../components/dashboard/Topbar';
 import { useAuth } from '../context/AuthContext';
 
+export const CURRENCY_GROUPS = [
+  {
+    group: 'Popular & Major Global',
+    currencies: [
+      { code: 'INR', name: 'Indian Rupee (INR - ₹ / Rs.)' },
+      { code: 'USD', name: 'US Dollar (USD - $)' },
+      { code: 'EUR', name: 'Euro (EUR - €)' },
+      { code: 'GBP', name: 'British Pound (GBP - £)' },
+      { code: 'JPY', name: 'Japanese Yen (JPY - ¥)' },
+      { code: 'AUD', name: 'Australian Dollar (AUD - A$)' },
+      { code: 'CAD', name: 'Canadian Dollar (CAD - C$)' },
+      { code: 'CHF', name: 'Swiss Franc (CHF)' },
+      { code: 'CNY', name: 'Chinese Yuan (CNY - ¥)' },
+      { code: 'SGD', name: 'Singapore Dollar (SGD - S$)' },
+      { code: 'AED', name: 'UAE Dirham (AED - د.إ)' },
+      { code: 'SAR', name: 'Saudi Riyal (SAR - ﷼)' },
+    ],
+  },
+  {
+    group: 'Asia & Pacific',
+    currencies: [
+      { code: 'BDT', name: 'Bangladeshi Taka (BDT - ৳)' },
+      { code: 'HKD', name: 'Hong Kong Dollar (HK$)' },
+      { code: 'IDR', name: 'Indonesian Rupiah (IDR - Rp)' },
+      { code: 'KRW', name: 'South Korean Won (KRW - ₩)' },
+      { code: 'LKR', name: 'Sri Lankan Rupee (LKR - Rs)' },
+      { code: 'MYR', name: 'Malaysian Ringgit (MYR - RM)' },
+      { code: 'NPR', name: 'Nepalese Rupee (NPR - Rs)' },
+      { code: 'NZD', name: 'New Zealand Dollar (NZ$)' },
+      { code: 'PHP', name: 'Philippine Peso (PHP - ₱)' },
+      { code: 'PKR', name: 'Pakistani Rupee (PKR - ₨)' },
+      { code: 'THB', name: 'Thai Baht (THB - ฿)' },
+      { code: 'TWD', name: 'New Taiwan Dollar (TWD - NT$)' },
+      { code: 'VND', name: 'Vietnamese Dong (VND - ₫)' },
+    ],
+  },
+  {
+    group: 'Europe',
+    currencies: [
+      { code: 'BGN', name: 'Bulgarian Lev (BGN - лв)' },
+      { code: 'CZK', name: 'Czech Koruna (CZK - Kč)' },
+      { code: 'DKK', name: 'Danish Krone (DKK - kr)' },
+      { code: 'HUF', name: 'Hungarian Forint (HUF - Ft)' },
+      { code: 'ISK', name: 'Icelandic Króna (ISK - kr)' },
+      { code: 'NOK', name: 'Norwegian Krone (NOK - kr)' },
+      { code: 'PLN', name: 'Polish Zloty (PLN - zł)' },
+      { code: 'RON', name: 'Romanian Leu (RON - lei)' },
+      { code: 'RSD', name: 'Serbian Dinar (RSD - din)' },
+      { code: 'RUB', name: 'Russian Ruble (RUB - ₽)' },
+      { code: 'SEK', name: 'Swedish Krona (SEK - kr)' },
+      { code: 'TRY', name: 'Turkish Lira (TRY - ₺)' },
+      { code: 'UAH', name: 'Ukrainian Hryvnia (UAH - ₴)' },
+    ],
+  },
+  {
+    group: 'Middle East & Africa',
+    currencies: [
+      { code: 'BHD', name: 'Bahraini Dinar (BHD - .د.ب)' },
+      { code: 'DZD', name: 'Algerian Dinar (DZD - دج)' },
+      { code: 'EGP', name: 'Egyptian Pound (EGP - E£)' },
+      { code: 'ETB', name: 'Ethiopian Birr (ETB - Br)' },
+      { code: 'GHS', name: 'Ghanaian Cedi (GHS - GH₵)' },
+      { code: 'ILS', name: 'Israeli New Shekel (ILS - ₪)' },
+      { code: 'JOD', name: 'Jordanian Dinar (JOD - د.ا)' },
+      { code: 'KES', name: 'Kenyan Shilling (KES - KSh)' },
+      { code: 'KWD', name: 'Kuwaiti Dinar (KWD - د.ك)' },
+      { code: 'MAD', name: 'Moroccan Dirham (MAD)' },
+      { code: 'NGN', name: 'Nigerian Naira (NGN - ₦)' },
+      { code: 'OMR', name: 'Omani Rial (OMR - ر.ع.)' },
+      { code: 'QAR', name: 'Qatari Riyal (QAR - ر.ق)' },
+      { code: 'TND', name: 'Tunisian Dinar (TND - DT)' },
+      { code: 'TZS', name: 'Tanzanian Shilling (TZS - TSh)' },
+      { code: 'UGX', name: 'Ugandan Shilling (UGX - USh)' },
+      { code: 'ZAR', name: 'South African Rand (ZAR - R)' },
+    ],
+  },
+  {
+    group: 'Americas',
+    currencies: [
+      { code: 'ARS', name: 'Argentine Peso (ARS - $)' },
+      { code: 'BRL', name: 'Brazilian Real (BRL - R$)' },
+      { code: 'CLP', name: 'Chilean Peso (CLP - $)' },
+      { code: 'COP', name: 'Colombian Peso (COP - $)' },
+      { code: 'CRC', name: 'Costa Rican Colón (CRC - ₡)' },
+      { code: 'DOP', name: 'Dominican Peso (DOP - RD$)' },
+      { code: 'GTQ', name: 'Guatemalan Quetzal (GTQ - Q)' },
+      { code: 'JMD', name: 'Jamaican Dollar (JMD - J$)' },
+      { code: 'MXN', name: 'Mexican Peso (MXN - Mex$)' },
+      { code: 'PEN', name: 'Peruvian Sol (PEN - S/.)' },
+      { code: 'UYU', name: 'Uruguayan Peso (UYU - $U)' },
+    ],
+  },
+];
+
 export default function Settings() {
   const { user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -148,10 +242,15 @@ export default function Settings() {
                     onChange={(e) => handleChange('currency', e.target.value)}
                     className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    <option value="INR">Indian Rupee (INR - Rs. / ₹)</option>
-                    <option value="USD">US Dollar (USD - $)</option>
-                    <option value="EUR">Euro (EUR - €)</option>
-                    <option value="GBP">British Pound (GBP - £)</option>
+                    {CURRENCY_GROUPS.map((grp) => (
+                      <optgroup key={grp.group} label={grp.group}>
+                        {grp.currencies.map((curr) => (
+                          <option key={curr.code} value={curr.code}>
+                            {curr.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
                   </select>
                 </div>
 

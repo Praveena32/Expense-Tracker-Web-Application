@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Sparkles, 
-  RefreshCw, 
-  Layers, 
-  CheckCircle,
-  HelpCircle,
-  Calendar,
-  Download
-} from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import Sidebar from '../components/dashboard/Sidebar';
 import Topbar from '../components/dashboard/Topbar';
 import SummaryCard from '../components/dashboard/SummaryCard';
@@ -24,10 +15,52 @@ import {
   TransactionsSkeleton, 
   BudgetSkeleton 
 } from '../components/common/Skeleton';
-import { mockDashboardData, emptyDashboardData } from '../data/dashboardData';
 import dashboardService from '../services/dashboardService';
 import transactionService from '../services/transactionService';
 import budgetService from '../services/budgetService';
+
+const defaultDashboardData = {
+  user: null,
+  summary: {
+    totalIncome: {
+      amount: 0,
+      formatted: 'Rs. 0',
+      change: '0%',
+      timeframe: 'total recorded',
+      trend: 'neutral',
+      type: 'income',
+    },
+    totalExpenses: {
+      amount: 0,
+      formatted: 'Rs. 0',
+      change: '0%',
+      timeframe: 'total recorded',
+      trend: 'neutral',
+      type: 'expense',
+    },
+    currentBalance: {
+      amount: 0,
+      formatted: 'Rs. 0',
+      change: 'Available',
+      timeframe: 'Net balance',
+      trend: 'neutral',
+      type: 'balance',
+    },
+    monthlyBudget: {
+      amount: 0,
+      formatted: 'Rs. 0',
+      spent: 0,
+      percentage: 0,
+      supporting: '0% used',
+      trend: 'neutral',
+      type: 'budget',
+    },
+  },
+  expenseByCategory: [],
+  incomeVsExpensesMonthly: [],
+  recentTransactions: [],
+  budgetProgress: [],
+};
 
 export default function Dashboard() {
   // Navigation & Layout State
@@ -37,9 +70,6 @@ export default function Dashboard() {
   // Live Backend Data & Loading State
   const [dashboardData, setDashboardData] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
-
-  // UI Inspection & Simulation Mode: 'normal' | 'empty' | 'loading'
-  const [viewState, setViewState] = useState('normal');
 
   // Quick Action Modals State
   const [activeModal, setActiveModal] = useState(null); // 'expense' | 'income' | 'budget' | null
@@ -59,7 +89,7 @@ export default function Dashboard() {
         setDashboardData(data);
       }
     } catch (err) {
-      console.warn('Dashboard API call error, falling back to mock view:', err.message);
+      console.warn('Dashboard API call error:', err.message);
     } finally {
       setInitialLoading(false);
     }
@@ -69,10 +99,9 @@ export default function Dashboard() {
     loadDashboardData();
   }, []);
 
-  // Choose data according to view state
-  const activeData = dashboardData || mockDashboardData;
-  const currentData = viewState === 'empty' ? emptyDashboardData : activeData;
-  const isLoading = viewState === 'loading' || (initialLoading && !dashboardData);
+  // Live data resolution
+  const currentData = dashboardData || defaultDashboardData;
+  const isLoading = initialLoading && !dashboardData;
 
   // Modal Submit Handlers calling real backend APIs
   const handleExpenseSubmit = async (e) => {
@@ -166,9 +195,9 @@ export default function Dashboard() {
         {/* Dashboard Scrollable Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           
-          {/* Dashboard Control Bar & Interactive State Switcher */}
+          {/* Dashboard Control Bar */}
           <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            {/* Left: Quick Actions */}
+            {/* Quick Actions */}
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5 font-display">
                 Quick Actions
@@ -180,47 +209,10 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Right: UI Sandbox Switcher */}
-            <div className="flex flex-col sm:items-end w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5 font-display">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                Preview Mode:
-              </span>
-              <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-semibold" role="group">
-                <button
-                  type="button"
-                  onClick={() => setViewState('normal')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    viewState === 'normal'
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Active Data
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewState('loading')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    viewState === 'loading'
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Loading Skeletons
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewState('empty')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    viewState === 'empty'
-                      ? 'bg-white text-slate-900 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Empty States
-                </button>
-              </div>
+            {/* Live Financial Status Indicator */}
+            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-medium bg-slate-50 border border-slate-200/60 px-3.5 py-2 rounded-xl">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Financial Overview
             </div>
           </div>
 

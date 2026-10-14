@@ -134,8 +134,6 @@ Expense Tracker/
     │   └── dashboard/               # Topbar, Sidebar, SummaryCard, Charts, QuickActions
     ├── context/
     │   └── AuthContext.jsx          # User session, JWT state, login, register, logout
-    ├── data/
-    │   └── dashboardData.js         # Base data templates & fallback definitions
     ├── layouts/
     │   └── AuthLayout.jsx           # Clean split-screen authentication layout
     ├── pages/
