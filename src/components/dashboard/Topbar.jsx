@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Bell, 
   Menu, 
@@ -7,7 +8,7 @@ import {
   User, 
   Settings, 
   LogOut, 
-  CheckCheck,
+  CheckCheck, 
   ShieldCheck 
 } from 'lucide-react';
 
@@ -17,6 +18,7 @@ export default function Topbar({ user, onMobileMenuClick }) {
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -167,7 +169,11 @@ export default function Topbar({ user, onMobileMenuClick }) {
                 <div className="pt-1 border-t border-slate-100">
                   <button
                     type="button"
-                    onClick={() => navigate('/login')}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      logout();
+                      navigate('/login');
+                    }}
                     className="w-full px-4 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2.5"
                   >
                     <LogOut className="w-4 h-4 text-red-500" />

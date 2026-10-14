@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Wallet, 
   LayoutDashboard, 
@@ -19,6 +20,7 @@ export default function Sidebar({
   setMobileOpen,
 }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -27,6 +29,7 @@ export default function Sidebar({
   ];
 
   const handleLogout = () => {
+    logout();
     navigate('/login');
   };
 

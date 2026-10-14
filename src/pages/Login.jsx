@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, LogIn, AlertCircle } from 'lucide-react';
 import AuthLayout from '../layouts/AuthLayout';
 import InputField from '../components/auth/InputField';
 import PasswordInput from '../components/auth/PasswordInput';
 import Checkbox from '../components/auth/Checkbox';
 import Button from '../components/auth/Button';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,6 +19,7 @@ export default function Login() {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -26,10 +31,14 @@ export default function Login() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    if (serverError) {
+      setServerError('');
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError('');
     const newErrors = {};
 
     if (!formData.email.trim()) {
@@ -48,9 +57,17 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await login({
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      setServerError(err.message || 'Invalid email or password. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -65,6 +82,14 @@ export default function Login() {
           Sign in to continue managing your finances.
         </p>
       </header>
+
+      {/* Server Error Notification */}
+      {serverError && (
+        <div className="mb-4.5 p-3.5 rounded-xl bg-red-50 border border-red-200/80 text-red-800 text-xs flex items-center gap-2.5 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          <span>{serverError}</span>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-4.5">

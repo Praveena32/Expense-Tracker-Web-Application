@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, UserPlus, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import AuthLayout from '../layouts/AuthLayout';
 import InputField from '../components/auth/InputField';
@@ -7,8 +7,12 @@ import PasswordInput from '../components/auth/PasswordInput';
 import PasswordStrength, { calculatePasswordStrength } from '../components/auth/PasswordStrength';
 import Checkbox from '../components/auth/Checkbox';
 import Button from '../components/auth/Button';
+import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
   // Form State
   const [formData, setFormData] = useState({
     fullName: '',
@@ -88,8 +92,8 @@ export default function Register() {
     return newErrors;
   };
 
-  // Simulated Submission Handler (UI only, ready for API integration)
-  const handleSubmit = (e) => {
+  // Submission Handler calling backend API
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
     setSuccessMessage('');
@@ -100,12 +104,22 @@ export default function Register() {
       return;
     }
 
-    // Simulate realistic loading state for preview
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await register({
+        name: formData.fullName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
       setSuccessMessage('Account created successfully! Redirecting to dashboard...');
-    }, 1600);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 900);
+    } catch (err) {
+      setServerError(err.message || 'Registration failed. Please check your details and try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Demo State Trigger Helpers (for previewing all required UI states easily)
