@@ -71,22 +71,41 @@ All financial data is secured via **JSON Web Tokens (JWT)** and **bcrypt.js pass
 
 ## 🛠️ Technologies Used
 
-### Frontend
-- **React.js** (v18.3.1)
-- **Vite** (v5.4.14)
-- **React Router** (v6.29.0)
-- **Tailwind CSS** (v3.4.17)
-- **Recharts** (v3.10.1)
-- **Lucide React** (Icons)
+### Frontend Architecture
+| Technology | Version | Purpose & Implementation |
+| :--- | :--- | :--- |
+| **React.js** | `v18.3.1` | Component-based UI library powering declarative layouts, stateful components, and hooks (`useState`, `useEffect`, `useContext`, `useRef`). |
+| **Vite** | `v5.4.14` | Next-generation frontend build tool and dev server featuring lightning-fast Hot Module Replacement (HMR) and optimized Rollup bundling. |
+| **React Router** | `v6.29.0` | Client-side routing engine enabling SPA navigation, nested layouts, authorization guards, and `<ProtectedRoute>` mechanics. |
+| **Tailwind CSS** | `v3.4.17` | Utility-first styling framework configured with responsive breakpoints, emerald/dark accents, custom scrollbars, and modern typography. |
+| **PostCSS & Autoprefixer** | `v8.5.2` / `v10.4.20` | CSS parsing, bundling, and automated cross-browser vendor prefixing pipeline. |
+| **Recharts** | `v3.10.1` | Composable SVG data visualization library rendering the category expense Donut Chart and 6-month comparative cashflow Bar Chart. |
+| **Lucide React** | `v0.475.0` | Crisp, modern iconography representing transaction categories, budget trajectories, navigation anchors, and status notifications. |
 
-### Backend
-- **Node.js** (ES Modules)
-- **Express.js** (v4.21.2)
-- **MongoDB** & **Mongoose** (v8.10.1)
-- **jsonwebtoken** (JWT Authentication)
-- **bcryptjs** (Password encryption)
-- **cors** & **dotenv**
-- **mongodb-memory-server** (Automatic zero-config fallback for seamless local development)
+### Backend Architecture
+| Technology | Version | Purpose & Implementation |
+| :--- | :--- | :--- |
+| **Node.js** | `>= v18.0.0` | High-performance asynchronous JavaScript runtime utilizing native ECMAScript Modules (`import` / `export`). |
+| **Express.js** | `v4.21.2` | Minimalist web framework managing REST API endpoints, routing tiers, and centralized middleware pipelines. |
+| **JSON Web Tokens (JWT)** | `v9.0.2` | Stateless Bearer token authentication facilitating secure session verification and user identification across protected endpoints. |
+| **bcryptjs** | `v3.0.3` | Cryptographic password hashing utilizing 10 salt rounds to securely hash and compare credentials without exposing raw passwords. |
+| **CORS** | `v2.8.5` | Cross-Origin Resource Sharing middleware enabling secure cross-origin API requests from the Vite frontend client. |
+| **Dotenv** | `v16.4.7` | Runtime configuration loader injecting sensitive environment variables (`MONGO_URI`, `JWT_SECRET`, `PORT`) from `.env` files. |
+
+### Database & Storage Tier
+| Technology | Version | Purpose & Implementation |
+| :--- | :--- | :--- |
+| **MongoDB** | `>= v6.0.0` | Document-oriented NoSQL database storing user accounts, financial transactions, and monthly category budgets. |
+| **Mongoose** | `v8.10.1` | Object Data Modeling (ODM) library enforcing strict schemas, type validation, pre-save hooks, and virtual transforms (`toJSON`). |
+| **MongoDB Memory Server** | `v10.1.4` | In-memory binary fallback providing zero-configuration, instant local development and automated testing out of the box. |
+
+### Security & Architecture Highlights
+- **Strict User Isolation**: All database operations (`Transaction.find`, `Budget.findOneAndUpdate`, `aggregate`) enforce `{ userId: req.user._id }`.
+- **Compound Database Indexes**:
+  - `Budget`: Unique compound index on `{ userId: 1, category: 1, month: 1, year: 1 }` preventing duplicate monthly budget records per category.
+  - `Transaction`: Compound index on `{ userId: 1, date: -1 }` guaranteeing sub-millisecond sorting on ledger feeds.
+- **Stateless Bearer Authorization**: Protects all transaction, budget, and dashboard routes via `Authorization: Bearer <token>` header checking.
+- **Fail-Safe Database Connection**: Dynamically attempts MongoDB Atlas or local MongoDB; seamlessly initializes an in-memory database instance if local daemon is inactive.
 
 ---
 
